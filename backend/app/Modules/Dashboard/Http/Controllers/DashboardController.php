@@ -6,6 +6,7 @@ use App\Core\Http\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Audit\Models\AuditLog;
+use App\Modules\Patients\Models\Patient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,9 @@ class DashboardController extends Controller
                 ->when($hospitalId, fn ($q) => $q->where('hospital_id', $hospitalId))
                 ->whereDate('created_at', now()->toDateString())
                 ->count(),
-            'total_patients' => 0,
+            'total_patients' => Patient::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->count(),
             'todays_appointments' => 0,
             'waiting_patients' => 0,
             'doctors_available' => 0,

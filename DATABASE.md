@@ -15,6 +15,12 @@ PostgreSQL is required in development and production. Automated tests use SQLite
 | audit_logs | Immutable activity trail |
 | notifications | Laravel database notifications |
 | sessions / cache / jobs | Framework |
+| patients | Tenant-scoped master patient record and unique MRN |
+| patient_mrn_sequences | Transaction-safe MRN allocation per hospital |
+| patient_contacts | Emergency, next-of-kin, and other contacts |
+| patient_allergies | Structured allergy list |
+| patient_medical_histories | Existing and resolved conditions |
+| patient_identifications | Approved identifiers such as NIN |
 
 All business primary keys are UUIDs.
 
@@ -24,7 +30,7 @@ All business primary keys are UUIDs.
 - `created_at` / `updated_at` except audit logs (`created_at` only)
 - Soft delete users; do not soft-delete audit logs
 - JSON (maps to JSONB on PostgreSQL) for settings and audit payloads
-- Unique MRN and other clinical identifiers arrive in Phase 2
+- MRNs are unique within a hospital and allocated with a locked sequence row
 
 ## Seed data
 

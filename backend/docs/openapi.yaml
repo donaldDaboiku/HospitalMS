@@ -66,6 +66,34 @@ paths:
       security: [{ bearerAuth: [] }]
       responses:
         "200": { description: Roles and permissions }
+  /patients:
+    get:
+      summary: Search tenant-scoped patients by MRN, name, phone, or date of birth
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Paginated patient records }
+    post:
+      summary: Register a patient and assign a server-generated MRN
+      security: [{ bearerAuth: [] }]
+      responses:
+        "201": { description: Registered patient }
+  /patients/duplicates:
+    post:
+      summary: Find potential matches before patient registration
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Potential matching patient records }
+  /patients/{id}:
+    get:
+      summary: View patient profile and write an access audit event
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Patient profile }
+    put:
+      summary: Update a patient record
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Updated patient profile }
   /audit-logs:
     get:
       summary: List audit logs

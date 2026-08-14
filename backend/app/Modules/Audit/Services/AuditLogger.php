@@ -23,7 +23,7 @@ class AuditLogger
         $user ??= $request?->user();
 
         return AuditLog::query()->create([
-            'hospital_id' => $user?->hospital_id,
+            'hospital_id' => $auditable?->getAttribute('hospital_id') ?? $user?->hospital_id,
             'user_id' => $user?->id,
             'action' => $action,
             'module' => $module,

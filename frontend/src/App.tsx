@@ -10,6 +10,9 @@ import { UsersPage } from '@/pages/UsersPage'
 import { RolesPage } from '@/pages/RolesPage'
 import { AuditLogsPage } from '@/pages/AuditLogsPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
+import { PatientProfilePage } from '@/pages/PatientProfilePage'
+import { PatientsPage } from '@/pages/PatientsPage'
+import { RegisterPatientPage } from '@/pages/RegisterPatientPage'
 import { theme } from '@/theme'
 
 const queryClient = new QueryClient({
@@ -35,6 +38,9 @@ export default function App() {
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<DashboardPage />} />
+                  <Route path="/patients" element={<PatientsPage />} />
+                  <Route path="/patients/register" element={<RegisterPatientPage />} />
+                  <Route path="/patients/:id" element={<PatientProfilePage />} />
                   <Route path="/admin/users" element={<UsersPage />} />
                   <Route path="/admin/roles" element={<RolesPage />} />
                   <Route path="/admin/audit-logs" element={<AuditLogsPage />} />

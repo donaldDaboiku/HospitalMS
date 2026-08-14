@@ -90,3 +90,63 @@ export type AuditLog = {
   created_at: string
   user?: { id: string; first_name: string; last_name: string; email: string } | null
 }
+
+export type Patient = {
+  id: string
+  hospital_id: string
+  branch_id: string | null
+  mrn: string
+  first_name: string
+  middle_name: string | null
+  last_name: string
+  name: string
+  date_of_birth: string
+  gender: string
+  phone: string | null
+  email: string | null
+  address: string | null
+  state: string | null
+  country: string
+  occupation: string | null
+  marital_status: string | null
+  blood_group: string | null
+  genotype: string | null
+  status: string
+  contacts: PatientContact[]
+  allergies: PatientAllergy[]
+  medical_histories: PatientMedicalHistory[]
+  identifications: PatientIdentification[]
+}
+
+export type PatientContact = {
+  id?: string
+  type: 'emergency' | 'next_of_kin' | 'other'
+  full_name: string
+  relationship: string | null
+  phone: string
+  email: string | null
+  address: string | null
+  is_primary: boolean
+}
+
+export type PatientAllergy = {
+  id?: string
+  allergen: string
+  reaction: string | null
+  severity: string | null
+}
+
+export type PatientMedicalHistory = {
+  id?: string
+  condition_name: string
+  status: string
+  notes: string | null
+}
+
+export type PatientIdentification = {
+  id?: string
+  type: string
+  number: string
+  issuer: string | null
+  expires_at: string | null
+}

@@ -11,7 +11,7 @@ Production-oriented modular monolith for hospitals and clinics.
 
 ## Current status
 
-**Phase 1 — Foundation is in progress / complete for local run.**
+**Phase 2 — Patient core is complete for local run.**
 
 Working now:
 
@@ -22,8 +22,9 @@ Working now:
 - Audit log foundation
 - Dashboard shell
 - Tests for auth, authorization, users, and audit
+- Patient registration, tenant-scoped MRNs, duplicate checks, search, and profile access auditing
 
-Not built yet: patients, appointments, clinical, lab, pharmacy, billing, IPD, insurance, patient portal.
+Not built yet: appointments, clinical, lab, pharmacy, billing, IPD, insurance, patient portal.
 
 ## Local requirements
 

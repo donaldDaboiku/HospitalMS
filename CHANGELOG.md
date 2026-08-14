@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-08-14
+
+### Added
+
+- Tenant-scoped patient registration with transaction-safe, per-hospital MRNs
+- Patient contacts, allergies, medical history, and approved identity records
+- Duplicate-match check, search, patient profile, and audit events for record views and changes
+- Staff console pages for listing, registering, and viewing patients
+
 ## 0.1.0 — 2026-08-13
 
 ### Added

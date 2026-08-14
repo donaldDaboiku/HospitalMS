@@ -12,10 +12,10 @@ export const navigation: NavItem[] = [
     label: 'Patients',
     to: '/patients',
     permission: 'patient.view',
-    enabled: false,
+    enabled: true,
     children: [
-      { label: 'All Patients', to: '/patients', enabled: false },
-      { label: 'Register Patient', to: '/patients/register', enabled: false },
+      { label: 'All Patients', to: '/patients', enabled: true },
+      { label: 'Register Patient', to: '/patients/register', permission: 'patient.create', enabled: true },
       { label: 'Patient History', to: '/patients/history', enabled: false },
     ],
   },

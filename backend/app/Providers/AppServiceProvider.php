@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Modules\Patients\Models\Patient;
+use App\Modules\Patients\Policies\PatientPolicy;
 use App\Modules\Roles\Models\Permission;
 use App\Modules\Roles\Models\Role;
 use App\Modules\Users\Policies\UserPolicy;
@@ -10,6 +12,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +25,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Patient::class, PatientPolicy::class);
+
+        Route::bind('patient', function (string $value) {
+            $query = Patient::query()->whereKey($value);
+            $user = request()->user();
+
+            if ($user instanceof User && ! $user->isSuperAdmin()) {
+                $query->where('hospital_id', $user->hospital_id);
+            }
+
+            return $query->firstOrFail();
+        });
 
         Gate::before(function (User $user, string $ability) {
             return $user->isSuperAdmin() ? true : null;

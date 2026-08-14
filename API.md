@@ -33,6 +33,11 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | GET | /audit-logs | yes | audit.view |
 | GET | /audit-logs/{id} | yes | audit.view |
 | GET | /departments | yes | department.view |
+| GET | /patients | yes | patient.view |
+| POST | /patients/duplicates | yes | patient.create |
+| POST | /patients | yes | patient.create |
+| GET | /patients/{id} | yes | patient.view + hospital scope |
+| PUT | /patients/{id} | yes | patient.edit + hospital scope |
 
 OpenAPI: [backend/docs/openapi.yaml](backend/docs/openapi.yaml)
 
