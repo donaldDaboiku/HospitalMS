@@ -2,9 +2,9 @@
 
 namespace App\Core\Http;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Pagination\AbstractPaginator;
 
 final class ApiResponse
 {
@@ -23,12 +23,18 @@ final class ApiResponse
         return response()->json($payload, $status);
     }
 
-    public static function paginated(AbstractPaginator $paginator, string $message = 'OK'): JsonResponse
+    public static function paginated(LengthAwarePaginator $paginator, string $message = 'OK', ?callable $map = null): JsonResponse
     {
+        $items = $paginator->items();
+
+        if ($map !== null) {
+            $items = array_values(array_map($map, $items));
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $paginator->items(),
+            'data' => $items,
             'meta' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),

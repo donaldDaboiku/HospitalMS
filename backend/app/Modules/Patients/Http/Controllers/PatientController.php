@@ -22,10 +22,11 @@ class PatientController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Patient::class);
-        $paginator = $this->patients->paginate($request->user(), $request->query());
-        $paginator->getCollection()->transform(fn (Patient $patient) => (new PatientResource($patient))->resolve());
 
-        return ApiResponse::paginated($paginator);
+        return ApiResponse::paginated(
+            $this->patients->paginate($request->user(), $request->query()),
+            map: fn (Patient $patient) => (new PatientResource($patient))->resolve(),
+        );
     }
 
     public function duplicates(PatientRequest $request): JsonResponse

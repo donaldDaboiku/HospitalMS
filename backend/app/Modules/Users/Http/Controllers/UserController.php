@@ -20,12 +20,10 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $paginator = $this->users->paginate($request->user(), $request->query());
-        $paginator->getCollection()->transform(
-            fn (User $user) => (new UserResource($user))->resolve()
+        return ApiResponse::paginated(
+            $this->users->paginate($request->user(), $request->query()),
+            map: fn (User $user) => (new UserResource($user))->resolve(),
         );
-
-        return ApiResponse::paginated($paginator);
     }
 
     public function store(StoreUserRequest $request): JsonResponse
