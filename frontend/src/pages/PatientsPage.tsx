@@ -25,6 +25,7 @@ export function PatientsPage() {
           fullWidth
         />
         <Button component={Link} to="/patients/register" variant="contained">Register patient</Button>
+        <Button component={Link} to="/patients/register-family" variant="outlined">Register family</Button>
       </Paper>
       {error ? <Alert severity="error" sx={{ mb: 2 }}>Unable to load patients.</Alert> : null}
       <Paper variant="outlined">

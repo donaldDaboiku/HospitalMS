@@ -111,6 +111,7 @@ export type Patient = {
   marital_status: string | null
   blood_group: string | null
   genotype: string | null
+  photo_url: string | null
   status: string
   contacts: PatientContact[]
   allergies: PatientAllergy[]
@@ -121,12 +122,20 @@ export type Patient = {
 export type PatientContact = {
   id?: string
   type: 'emergency' | 'next_of_kin' | 'other'
+  related_patient_id?: string | null
   full_name: string
   relationship: string | null
   phone: string
   email: string | null
   address: string | null
   is_primary: boolean
+  related_patient?: {
+    id: string
+    mrn: string
+    name: string
+    phone: string | null
+    photo_url: string | null
+  } | null
 }
 
 export type PatientAllergy = {

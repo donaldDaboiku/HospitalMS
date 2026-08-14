@@ -10,7 +10,16 @@ class PatientContact extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['type', 'full_name', 'relationship', 'phone', 'email', 'address', 'is_primary'];
+    protected $fillable = [
+        'type',
+        'related_patient_id',
+        'full_name',
+        'relationship',
+        'phone',
+        'email',
+        'address',
+        'is_primary',
+    ];
 
     protected function casts(): array
     {
@@ -20,5 +29,10 @@ class PatientContact extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function relatedPatient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class, 'related_patient_id');
     }
 }

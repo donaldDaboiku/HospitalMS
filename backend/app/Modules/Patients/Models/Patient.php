@@ -32,6 +32,7 @@ class Patient extends Model
         'marital_status',
         'blood_group',
         'genotype',
+        'photo_path',
         'status',
         'registered_at',
     ];

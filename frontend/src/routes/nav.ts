@@ -16,6 +16,7 @@ export const navigation: NavItem[] = [
     children: [
       { label: 'All Patients', to: '/patients', enabled: true },
       { label: 'Register Patient', to: '/patients/register', permission: 'patient.create', enabled: true },
+      { label: 'Register Family', to: '/patients/register-family', permission: 'patient.create', enabled: true },
       { label: 'Patient History', to: '/patients/history', enabled: false },
     ],
   },

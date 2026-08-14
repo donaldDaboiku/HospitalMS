@@ -36,8 +36,11 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | GET | /patients | yes | patient.view |
 | POST | /patients/duplicates | yes | patient.create |
 | POST | /patients | yes | patient.create |
+| POST | /patients/family | yes | patient.create |
 | GET | /patients/{id} | yes | patient.view + hospital scope |
 | PUT | /patients/{id} | yes | patient.edit + hospital scope |
+| POST | /patients/{id}/photo | yes | patient.edit + hospital scope |
+| GET | /patients/{id}/photo | yes | patient.view + hospital scope |
 | GET | /doctors | yes | appointment.view or clinical.view |
 | GET | /appointments | yes | appointment.view |
 | POST | /appointments | yes | appointment.create |

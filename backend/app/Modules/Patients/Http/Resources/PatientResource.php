@@ -3,6 +3,7 @@
 namespace App\Modules\Patients\Http\Resources;
 
 use App\Modules\Patients\Models\Patient;
+use App\Modules\Patients\Models\PatientContact;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,9 +32,31 @@ class PatientResource extends JsonResource
             'marital_status' => $this->marital_status,
             'blood_group' => $this->blood_group,
             'genotype' => $this->genotype,
+            'photo_url' => $this->photo_path ? '/api/v1/patients/'.$this->id.'/photo' : null,
             'status' => $this->status,
             'registered_at' => $this->registered_at,
-            'contacts' => $this->whenLoaded('contacts'),
+            'contacts' => $this->whenLoaded('contacts', fn () => $this->contacts->map(fn (PatientContact $contact) => [
+                'id' => $contact->id,
+                'type' => $contact->type,
+                'related_patient_id' => $contact->related_patient_id,
+                'full_name' => $contact->full_name,
+                'relationship' => $contact->relationship,
+                'phone' => $contact->phone,
+                'email' => $contact->email,
+                'address' => $contact->address,
+                'is_primary' => $contact->is_primary,
+                'related_patient' => $contact->relationLoaded('relatedPatient') && $contact->relatedPatient
+                    ? [
+                        'id' => $contact->relatedPatient->id,
+                        'mrn' => $contact->relatedPatient->mrn,
+                        'name' => $contact->relatedPatient->name,
+                        'phone' => $contact->relatedPatient->phone,
+                        'photo_url' => $contact->relatedPatient->photo_path
+                            ? '/api/v1/patients/'.$contact->relatedPatient->id.'/photo'
+                            : null,
+                    ]
+                    : null,
+            ])->values()->all()),
             'allergies' => $this->whenLoaded('allergies'),
             'medical_histories' => $this->whenLoaded('medicalHistories'),
             'identifications' => $this->whenLoaded('identifications'),

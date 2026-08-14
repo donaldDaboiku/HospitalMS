@@ -8,13 +8,15 @@ use App\Modules\Patients\Models\Patient;
 use App\Modules\Settings\Models\Branch;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class PatientService
 {
-    private const RELATIONS = ['contacts', 'allergies', 'medicalHistories', 'identifications'];
+    private const RELATIONS = ['contacts.relatedPatient', 'allergies', 'medicalHistories', 'identifications'];
 
     public function __construct(private readonly AuditLogger $auditLogger) {}
 
@@ -93,7 +95,7 @@ class PatientService
             $this->assertBranchBelongsToHospital($data['branch_id'] ?? null, $hospitalId);
 
             $patient = Patient::query()->create([
-                ...Arr::except($data, ['contacts', 'allergies', 'medical_histories', 'identifications', 'hospital_id', 'mrn']),
+                ...Arr::except($data, ['contacts', 'allergies', 'medical_histories', 'identifications', 'hospital_id', 'mrn', 'photo_path', 'photo']),
                 'hospital_id' => $hospitalId,
                 'mrn' => $this->nextMrn($hospitalId),
                 'phone' => $this->normalizePhone($data['phone'] ?? null),
@@ -116,13 +118,80 @@ class PatientService
         });
     }
 
+    /**
+     * @param  array<string, mixed>  $primaryData
+     * @param  list<array<string, mixed>>  $members
+     * @return array{primary: Patient, members: list<Patient>}
+     */
+    public function createFamily(User $actor, array $primaryData, array $members): array
+    {
+        return DB::transaction(function () use ($actor, $primaryData, $members) {
+            $primary = $this->create($actor, [
+                ...Arr::except($primaryData, ['contacts']),
+                'contacts' => [],
+            ]);
+
+            $createdMembers = [];
+
+            foreach ($members as $memberData) {
+                $relationship = (string) ($memberData['relationship_to_primary'] ?? 'Other');
+                $payload = Arr::except($memberData, ['relationship_to_primary', 'contacts']);
+
+                $payload['address'] = $payload['address'] ?? $primary->address;
+                $payload['state'] = $payload['state'] ?? $primary->state;
+                $payload['country'] = $payload['country'] ?? $primary->country;
+                $payload['hospital_id'] = $primaryData['hospital_id'] ?? $primary->hospital_id;
+                $payload['branch_id'] = $payload['branch_id'] ?? $primary->branch_id;
+                $payload['contacts'] = [[
+                    'type' => 'next_of_kin',
+                    'related_patient_id' => $primary->id,
+                    'relationship' => $relationship,
+                    'is_primary' => true,
+                ]];
+
+                $member = $this->create($actor, $payload);
+
+                $primary->contacts()->create([
+                    'type' => 'next_of_kin',
+                    'related_patient_id' => $member->id,
+                    'full_name' => $member->name,
+                    'relationship' => $this->reciprocalRelationship($relationship),
+                    'phone' => $member->phone ?: $primary->phone ?: '08000000000',
+                    'email' => $member->email,
+                    'address' => $member->address,
+                    'is_primary' => count($createdMembers) === 0,
+                ]);
+
+                $createdMembers[] = $member->load(self::RELATIONS);
+            }
+
+            $primary = $primary->fresh(self::RELATIONS) ?? $primary->load(self::RELATIONS);
+
+            $this->auditLogger->record(
+                action: 'patient.family_registered',
+                module: 'patients',
+                auditable: $primary,
+                newValues: [
+                    'primary_id' => $primary->id,
+                    'member_ids' => collect($createdMembers)->pluck('id')->all(),
+                ],
+                user: $actor,
+            );
+
+            return [
+                'primary' => $primary,
+                'members' => $createdMembers,
+            ];
+        });
+    }
+
     public function update(User $actor, Patient $patient, array $data): Patient
     {
         return DB::transaction(function () use ($actor, $patient, $data) {
             $patient->load(self::RELATIONS);
             $old = $this->auditSnapshot($patient);
             $this->assertBranchBelongsToHospital($data['branch_id'] ?? $patient->branch_id, $patient->hospital_id);
-            $payload = Arr::except($data, ['contacts', 'allergies', 'medical_histories', 'identifications', 'hospital_id', 'mrn']);
+            $payload = Arr::except($data, ['contacts', 'allergies', 'medical_histories', 'identifications', 'hospital_id', 'mrn', 'photo_path', 'photo']);
             if (array_key_exists('phone', $payload)) {
                 $payload['phone'] = $this->normalizePhone($payload['phone']);
             }
@@ -141,6 +210,29 @@ class PatientService
 
             return $patient;
         });
+    }
+
+    public function storePhoto(User $actor, Patient $patient, UploadedFile $photo): Patient
+    {
+        $directory = 'patients/'.$patient->hospital_id;
+        $extension = $photo->guessExtension() ?: $photo->getClientOriginalExtension() ?: 'jpg';
+        $path = $photo->storeAs($directory, $patient->id.'.'.$extension, 'local');
+
+        if ($patient->photo_path && $patient->photo_path !== $path) {
+            Storage::disk('local')->delete($patient->photo_path);
+        }
+
+        $patient->forceFill(['photo_path' => $path])->save();
+
+        $this->auditLogger->record(
+            action: 'patient.photo_updated',
+            module: 'patients',
+            auditable: $patient,
+            newValues: ['photo_path' => $path],
+            user: $actor,
+        );
+
+        return $patient->fresh(self::RELATIONS) ?? $patient->load(self::RELATIONS);
     }
 
     private function nextMrn(string $hospitalId): string
@@ -176,13 +268,77 @@ class PatientService
                 continue;
             }
 
+            $rows = $relation === 'contacts'
+                ? $this->prepareContacts($patient, $data['contacts'])
+                : $data[$relation];
+
             $eloquentRelation = match ($relation) {
                 'medical_histories' => $patient->medicalHistories(),
                 default => $patient->{$relation}(),
             };
             $eloquentRelation->delete();
-            $eloquentRelation->createMany($data[$relation]);
+            $eloquentRelation->createMany($rows);
         }
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $contacts
+     * @return list<array<string, mixed>>
+     */
+    private function prepareContacts(Patient $patient, array $contacts): array
+    {
+        $prepared = [];
+
+        foreach ($contacts as $index => $contact) {
+            $relatedId = $contact['related_patient_id'] ?? null;
+            $related = null;
+
+            if ($relatedId !== null && $relatedId !== '') {
+                if ($relatedId === $patient->id) {
+                    throw ValidationException::withMessages([
+                        "contacts.$index.related_patient_id" => ['A patient cannot be linked as their own contact.'],
+                    ]);
+                }
+
+                $related = Patient::query()
+                    ->whereKey($relatedId)
+                    ->where('hospital_id', $patient->hospital_id)
+                    ->first();
+
+                if ($related === null) {
+                    throw ValidationException::withMessages([
+                        "contacts.$index.related_patient_id" => ['The related patient was not found in this hospital.'],
+                    ]);
+                }
+            }
+
+            $fullName = $contact['full_name'] ?? null;
+            $phone = $contact['phone'] ?? null;
+
+            if ($related !== null) {
+                $fullName = $fullName ?: $related->name;
+                $phone = $phone ?: $related->phone;
+            }
+
+            if ($fullName === null || $fullName === '' || $phone === null || $phone === '') {
+                throw ValidationException::withMessages([
+                    "contacts.$index.full_name" => ['Contact name and phone are required (or link a registered patient with those details).'],
+                ]);
+            }
+
+            $prepared[] = [
+                'type' => $contact['type'],
+                'related_patient_id' => $related?->id,
+                'full_name' => $fullName,
+                'relationship' => $contact['relationship'] ?? null,
+                'phone' => $this->normalizePhone($phone) ?? $phone,
+                'email' => $contact['email'] ?? $related?->email,
+                'address' => $contact['address'] ?? $related?->address,
+                'is_primary' => (bool) ($contact['is_primary'] ?? false),
+            ];
+        }
+
+        return $prepared;
     }
 
     private function scopeToHospital(Builder $query, User $actor, ?string $requestedHospitalId): void
@@ -218,6 +374,20 @@ class PatientService
         return $digits === '' ? null : $digits;
     }
 
+    private function reciprocalRelationship(string $relationship): string
+    {
+        return match (strtolower(trim($relationship))) {
+            'spouse' => 'Spouse',
+            'parent' => 'Child',
+            'child' => 'Parent',
+            'sibling' => 'Sibling',
+            'guardian' => 'Dependent',
+            'dependent' => 'Guardian',
+            'friend' => 'Friend',
+            default => $relationship,
+        };
+    }
+
     private function auditSnapshot(Patient $patient): array
     {
         return [
@@ -227,8 +397,9 @@ class PatientService
             'name' => $patient->name,
             'date_of_birth' => $patient->date_of_birth?->toDateString(),
             'gender' => $patient->gender,
+            'has_photo' => $patient->photo_path !== null,
             'status' => $patient->status,
-            'contacts' => $patient->contacts->map->only(['type', 'full_name', 'relationship', 'phone', 'is_primary'])->all(),
+            'contacts' => $patient->contacts->map->only(['type', 'full_name', 'relationship', 'phone', 'is_primary', 'related_patient_id'])->all(),
             'allergies' => $patient->allergies->map->only(['allergen', 'reaction', 'severity'])->all(),
             'medical_histories' => $patient->medicalHistories->map->only(['condition_name', 'status'])->all(),
         ];

@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Core\Support\Roles;
 use App\Modules\Settings\Models\Branch;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\FeatureTestCase;
 
 class PatientManagementTest extends FeatureTestCase
@@ -196,5 +198,145 @@ class PatientManagementTest extends FeatureTestCase
             'auditable_id' => $patientId,
             'hospital_id' => $hospital->id,
         ]);
+    }
+
+    public function test_receptionist_can_upload_and_view_patient_photo(): void
+    {
+        Storage::fake('local');
+
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST);
+        $patientId = $this->actingAsApi($receptionist)->postJson('/api/v1/patients', $this->payload())
+            ->assertCreated()
+            ->json('data.id');
+
+        $this->actingAsApi($receptionist)
+            ->post('/api/v1/patients/'.$patientId.'/photo', [
+                'photo' => UploadedFile::fake()->image('ada.jpg', 240, 240),
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('data.photo_url', '/api/v1/patients/'.$patientId.'/photo');
+
+        $this->assertDatabaseHas('audit_logs', ['action' => 'patient.photo_updated']);
+
+        $this->actingAsApi($receptionist)
+            ->get('/api/v1/patients/'.$patientId.'/photo')
+            ->assertOk()
+            ->assertHeader('content-type', 'image/jpeg');
+    }
+
+    public function test_nurse_cannot_upload_patient_photo(): void
+    {
+        Storage::fake('local');
+
+        $hospital = $this->makeHospital();
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST, $hospital);
+        $nurse = $this->makeUser(Roles::NURSE, $hospital);
+        $patientId = $this->actingAsApi($receptionist)->postJson('/api/v1/patients', $this->payload())->json('data.id');
+
+        $this->actingAsApi($nurse)
+            ->post('/api/v1/patients/'.$patientId.'/photo', [
+                'photo' => UploadedFile::fake()->image('ada.jpg'),
+            ], ['Accept' => 'application/json'])
+            ->assertForbidden();
+    }
+
+    public function test_contact_can_map_to_an_already_registered_patient(): void
+    {
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST);
+
+        $relatedId = $this->actingAsApi($receptionist)->postJson('/api/v1/patients', $this->payload([
+            'first_name' => 'Chinedu',
+            'last_name' => 'Okafor',
+            'email' => 'chinedu@example.test',
+            'phone' => '08087654321',
+            'contacts' => [],
+            'identifications' => [['type' => 'NIN', 'number' => '10987654321']],
+        ]))->assertCreated()->json('data.id');
+
+        $response = $this->actingAsApi($receptionist)->postJson('/api/v1/patients', $this->payload([
+            'first_name' => 'Ada',
+            'email' => 'ada2@example.test',
+            'phone' => '08011112222',
+            'identifications' => [],
+            'contacts' => [[
+                'type' => 'next_of_kin',
+                'related_patient_id' => $relatedId,
+                'relationship' => 'Spouse',
+                'is_primary' => true,
+            ]],
+        ]))->assertCreated();
+
+        $response->assertJsonPath('data.contacts.0.related_patient_id', $relatedId)
+            ->assertJsonPath('data.contacts.0.related_patient.mrn', 'MRN-000001')
+            ->assertJsonPath('data.contacts.0.full_name', 'Chinedu Okafor')
+            ->assertJsonPath('data.contacts.0.phone', '08087654321');
+    }
+
+    public function test_related_patient_must_belong_to_same_hospital(): void
+    {
+        $receptionistA = $this->makeUser(Roles::RECEPTIONIST);
+        $receptionistB = $this->makeUser(Roles::RECEPTIONIST);
+
+        $foreignPatientId = $this->actingAsApi($receptionistB)->postJson('/api/v1/patients', $this->payload([
+            'contacts' => [],
+            'identifications' => [],
+        ]))->json('data.id');
+
+        $this->actingAsApi($receptionistA)->postJson('/api/v1/patients', $this->payload([
+            'contacts' => [[
+                'type' => 'next_of_kin',
+                'related_patient_id' => $foreignPatientId,
+                'relationship' => 'Sibling',
+            ]],
+            'identifications' => [],
+        ]))->assertStatus(422);
+    }
+
+    public function test_family_registration_creates_linked_members(): void
+    {
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST);
+
+        $response = $this->actingAsApi($receptionist)->postJson('/api/v1/patients/family', [
+            'primary' => [
+                'first_name' => 'Ada',
+                'last_name' => 'Okafor',
+                'date_of_birth' => '1990-06-15',
+                'gender' => 'female',
+                'phone' => '08012345678',
+                'address' => '12 Broad Street',
+                'state' => 'Lagos',
+                'country' => 'NG',
+            ],
+            'members' => [
+                [
+                    'relationship_to_primary' => 'Spouse',
+                    'first_name' => 'Chinedu',
+                    'last_name' => 'Okafor',
+                    'date_of_birth' => '1988-03-10',
+                    'gender' => 'male',
+                    'phone' => '08087654321',
+                ],
+                [
+                    'relationship_to_primary' => 'Child',
+                    'first_name' => 'Amaka',
+                    'last_name' => 'Okafor',
+                    'date_of_birth' => '2015-01-20',
+                    'gender' => 'female',
+                ],
+            ],
+        ])->assertCreated();
+
+        $response->assertJsonPath('data.primary.mrn', 'MRN-000001')
+            ->assertJsonCount(2, 'data.members')
+            ->assertJsonPath('data.members.0.mrn', 'MRN-000002')
+            ->assertJsonPath('data.members.1.mrn', 'MRN-000003')
+            ->assertJsonPath('data.primary.contacts.0.related_patient_id', $response->json('data.members.0.id'))
+            ->assertJsonPath('data.members.0.contacts.0.related_patient_id', $response->json('data.primary.id'))
+            ->assertJsonPath('data.members.0.contacts.0.relationship', 'Spouse')
+            ->assertJsonPath('data.primary.contacts.0.relationship', 'Spouse')
+            ->assertJsonPath('data.members.1.contacts.0.relationship', 'Child')
+            ->assertJsonPath('data.primary.contacts.1.relationship', 'Parent');
+
+        $this->assertDatabaseHas('audit_logs', ['action' => 'patient.family_registered']);
     }
 }

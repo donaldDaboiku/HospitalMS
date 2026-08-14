@@ -47,8 +47,28 @@ export async function findPatientDuplicates(payload: Pick<Patient, 'first_name' 
   return data.data
 }
 
-export async function registerPatient(payload: Omit<Patient, 'id' | 'mrn' | 'name' | 'hospital_id' | 'status' | 'branch_id'>): Promise<Patient> {
+export async function registerPatient(payload: Omit<Patient, 'id' | 'mrn' | 'name' | 'hospital_id' | 'status' | 'branch_id' | 'photo_url'>): Promise<Patient> {
   const { data } = await http.post<ApiSuccess<Patient>>('/patients', payload)
+  return data.data
+}
+
+export async function registerFamily(payload: {
+  primary: Omit<Patient, 'id' | 'mrn' | 'name' | 'hospital_id' | 'status' | 'branch_id' | 'photo_url' | 'contacts' | 'allergies' | 'medical_histories' | 'identifications'>
+  members: Array<
+    Omit<Patient, 'id' | 'mrn' | 'name' | 'hospital_id' | 'status' | 'branch_id' | 'photo_url' | 'contacts' | 'allergies' | 'medical_histories' | 'identifications'>
+    & { relationship_to_primary: string }
+  >
+}): Promise<{ primary: Patient; members: Patient[] }> {
+  const { data } = await http.post<ApiSuccess<{ primary: Patient; members: Patient[] }>>('/patients/family', payload)
+  return data.data
+}
+
+export async function uploadPatientPhoto(patientId: string, photo: File): Promise<Patient> {
+  const body = new FormData()
+  body.append('photo', photo)
+  const { data } = await http.post<ApiSuccess<Patient>>(`/patients/${patientId}/photo`, body, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
   return data.data
 }
 

@@ -38,6 +38,8 @@ All business primary keys are UUIDs.
 - Soft delete users; do not soft-delete audit logs
 - JSON (maps to JSONB on PostgreSQL) for settings and audit payloads
 - MRNs are unique within a hospital and allocated with a locked sequence row
+- Patient photos are stored on the private disk (`patients.photo_path`) and served only via authenticated `GET /patients/{id}/photo`
+- Contact/next-of-kin rows may map to another patient via `patient_contacts.related_patient_id` (same hospital only)
 
 ## Seed data
 

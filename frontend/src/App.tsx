@@ -13,6 +13,7 @@ import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { PatientProfilePage } from '@/pages/PatientProfilePage'
 import { PatientsPage } from '@/pages/PatientsPage'
 import { RegisterPatientPage } from '@/pages/RegisterPatientPage'
+import { RegisterFamilyPage } from '@/pages/RegisterFamilyPage'
 import { TodaysAppointmentsPage } from '@/pages/TodaysAppointmentsPage'
 import { WaitingListPage } from '@/pages/WaitingListPage'
 import { EncountersPage } from '@/pages/EncountersPage'
@@ -44,6 +45,7 @@ export default function App() {
                   <Route path="/" element={<DashboardPage />} />
                   <Route path="/patients" element={<PatientsPage />} />
                   <Route path="/patients/register" element={<RegisterPatientPage />} />
+                  <Route path="/patients/register-family" element={<RegisterFamilyPage />} />
                   <Route path="/patients/:id" element={<PatientProfilePage />} />
                   <Route path="/appointments/today" element={<TodaysAppointmentsPage />} />
                   <Route path="/appointments/waiting" element={<WaitingListPage />} />
