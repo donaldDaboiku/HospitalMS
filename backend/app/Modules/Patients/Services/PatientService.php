@@ -151,12 +151,19 @@ class PatientService
 
                 $member = $this->create($actor, $payload);
 
+                $contactPhone = $member->phone ?: $primary->phone;
+                if ($contactPhone === null || $contactPhone === '') {
+                    throw ValidationException::withMessages([
+                        'primary.phone' => ['A phone number is required on the primary patient or family member to map relationships.'],
+                    ]);
+                }
+
                 $primary->contacts()->create([
                     'type' => 'next_of_kin',
                     'related_patient_id' => $member->id,
                     'full_name' => $member->name,
                     'relationship' => $this->reciprocalRelationship($relationship),
-                    'phone' => $member->phone ?: $primary->phone ?: '08000000000',
+                    'phone' => $contactPhone,
                     'email' => $member->email,
                     'address' => $member->address,
                     'is_primary' => count($createdMembers) === 0,

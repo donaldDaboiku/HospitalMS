@@ -339,4 +339,34 @@ class PatientManagementTest extends FeatureTestCase
 
         $this->assertDatabaseHas('audit_logs', ['action' => 'patient.family_registered']);
     }
+
+    public function test_family_registration_requires_primary_phone(): void
+    {
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST);
+
+        $this->actingAsApi($receptionist)->postJson('/api/v1/patients/family', [
+            'primary' => [
+                'first_name' => 'Ada',
+                'last_name' => 'Okafor',
+                'date_of_birth' => '1990-06-15',
+                'gender' => 'female',
+            ],
+            'members' => [
+                [
+                    'relationship_to_primary' => 'Spouse',
+                    'first_name' => 'Chinedu',
+                    'last_name' => 'Okafor',
+                    'date_of_birth' => '1988-03-10',
+                    'gender' => 'male',
+                ],
+            ],
+        ])->assertStatus(422)
+            ->assertJsonValidationErrors(['primary.phone']);
+
+        $this->assertDatabaseMissing('patients', [
+            'hospital_id' => $receptionist->hospital_id,
+            'first_name' => 'Ada',
+            'last_name' => 'Okafor',
+        ]);
+    }
 }

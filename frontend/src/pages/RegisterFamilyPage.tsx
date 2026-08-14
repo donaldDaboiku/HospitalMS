@@ -51,10 +51,12 @@ function PersonFields({
   value,
   onChange,
   title,
+  requirePhone = false,
 }: {
   value: FamilyPerson
   onChange: (patch: Partial<FamilyPerson>) => void
   title: string
+  requirePhone?: boolean
 }) {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 2 }}>
@@ -66,7 +68,7 @@ function PersonFields({
       <TextField required select label="Gender" value={value.gender} onChange={(event) => onChange({ gender: event.target.value })}>
         {['male', 'female', 'other', 'unknown'].map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
       </TextField>
-      <TextField label="Phone" value={value.phone ?? ''} onChange={(event) => onChange({ phone: event.target.value || null })} />
+      <TextField required={requirePhone} label="Phone" value={value.phone ?? ''} onChange={(event) => onChange({ phone: event.target.value || null })} />
       <TextField label="Email" type="email" value={value.email ?? ''} onChange={(event) => onChange({ email: event.target.value || null })} />
       <TextField label="Address" value={value.address ?? ''} onChange={(event) => onChange({ address: event.target.value || null })} sx={{ gridColumn: { md: 'span 2' } }} />
     </Box>
@@ -110,7 +112,7 @@ export function RegisterFamilyPage() {
           }
         }}
       >
-        <PersonFields value={primary} title="Primary patient" onChange={(patch) => setPrimary((current) => ({ ...current, ...patch }))} />
+        <PersonFields requirePhone value={primary} title="Primary patient" onChange={(patch) => setPrimary((current) => ({ ...current, ...patch }))} />
 
         <Divider sx={{ my: 3 }} />
 

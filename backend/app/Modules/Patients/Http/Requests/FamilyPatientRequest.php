@@ -20,6 +20,7 @@ class FamilyPatientRequest extends FormRequest
         return [
             'primary' => ['required', 'array'],
             ...$this->prefixRules('primary', $person),
+            'primary.phone' => ['required', 'string', 'max:32'],
             'primary.hospital_id' => ['nullable', 'uuid', 'exists:hospitals,id'],
             'primary.branch_id' => ['nullable', 'uuid', 'exists:branches,id'],
             'members' => ['required', 'array', 'min:1', 'max:10'],
