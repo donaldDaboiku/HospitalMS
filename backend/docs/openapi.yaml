@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Hospital Management System API
-  version: 0.1.0
-  description: Phase 1 foundation endpoints.
+  version: 0.3.0
+  description: Phase 1–3 foundation, patient, appointment, and light clinical endpoints.
 servers:
   - url: http://localhost:8000/api/v1
 paths:
@@ -94,6 +94,76 @@ paths:
       security: [{ bearerAuth: [] }]
       responses:
         "200": { description: Updated patient profile }
+  /doctors:
+    get:
+      summary: List doctor profiles for the actor hospital
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Doctor profiles }
+  /appointments:
+    get:
+      summary: List appointments (supports scope=today and status filters)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Paginated appointments }
+    post:
+      summary: Book an appointment
+      security: [{ bearerAuth: [] }]
+      responses:
+        "201": { description: Appointment booked }
+  /appointments/{id}/cancel:
+    post:
+      summary: Cancel an appointment
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Appointment cancelled }
+  /appointments/{id}/check-in:
+    post:
+      summary: Check in a patient and open an encounter
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Checked in with encounter }
+  /encounters:
+    get:
+      summary: List encounters
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Paginated encounters }
+    post:
+      summary: Open a walk-in encounter
+      security: [{ bearerAuth: [] }]
+      responses:
+        "201": { description: Encounter opened }
+  /encounters/{id}:
+    get:
+      summary: Encounter detail with triage, notes, and diagnoses
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Encounter }
+  /encounters/{id}/triage:
+    post:
+      summary: Save triage vitals and priority
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Triage saved }
+  /encounters/{id}/notes:
+    post:
+      summary: Add a clinical note
+      security: [{ bearerAuth: [] }]
+      responses:
+        "201": { description: Note saved }
+  /encounters/{id}/diagnoses:
+    post:
+      summary: Record a diagnosis
+      security: [{ bearerAuth: [] }]
+      responses:
+        "201": { description: Diagnosis recorded }
+  /encounters/{id}/close:
+    post:
+      summary: Close an encounter
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Encounter closed }
   /audit-logs:
     get:
       summary: List audit logs

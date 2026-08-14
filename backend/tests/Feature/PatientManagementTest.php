@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Core\Support\Roles;
 use App\Modules\Settings\Models\Branch;
+use Illuminate\Support\Facades\DB;
 use Tests\FeatureTestCase;
 
 class PatientManagementTest extends FeatureTestCase
@@ -70,6 +71,27 @@ class PatientManagementTest extends FeatureTestCase
             'phone' => '08022223333',
             'identifications' => [],
         ]))->assertJsonPath('data.mrn', 'MRN-000002');
+    }
+
+    public function test_mrn_allocation_recovers_when_sequence_row_already_exists(): void
+    {
+        $receptionist = $this->makeUser(Roles::RECEPTIONIST);
+
+        DB::table('patient_mrn_sequences')->insert([
+            'hospital_id' => $receptionist->hospital_id,
+            'next_value' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAsApi($receptionist)->postJson('/api/v1/patients', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.mrn', 'MRN-000001');
+
+        $this->assertDatabaseHas('patient_mrn_sequences', [
+            'hospital_id' => $receptionist->hospital_id,
+            'next_value' => 2,
+        ]);
     }
 
     public function test_duplicate_check_finds_name_birth_date_and_phone_matches(): void

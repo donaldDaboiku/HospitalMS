@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             DepartmentSeeder::class,
             UserSeeder::class,
+            DoctorSeeder::class,
         ]);
     }
 }

@@ -33,12 +33,21 @@ export function PatientsPage() {
             <TableRow><TableCell>MRN</TableCell><TableCell>Name</TableCell><TableCell>Date of birth</TableCell><TableCell>Phone</TableCell><TableCell>Status</TableCell></TableRow>
           </TableHead>
           <TableBody>
-            {isFetching ? <TableRow><TableCell colSpan={5}>Loading…</TableCell></TableRow> : null}
-            {data?.map((patient) => (
-              <TableRow key={patient.id} hover component={Link} to={`/patients/${patient.id}`} sx={{ textDecoration: 'none', cursor: 'pointer' }}>
-                <TableCell>{patient.mrn}</TableCell><TableCell>{patient.name}</TableCell><TableCell>{patient.date_of_birth}</TableCell><TableCell>{patient.phone ?? '—'}</TableCell><TableCell>{patient.status}</TableCell>
+            {isFetching ? (
+              <TableRow>
+                <TableCell colSpan={5}>Loading…</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              data?.map((patient) => (
+                <TableRow key={patient.id} hover component={Link} to={`/patients/${patient.id}`} sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+                  <TableCell>{patient.mrn}</TableCell>
+                  <TableCell>{patient.name}</TableCell>
+                  <TableCell>{patient.date_of_birth}</TableCell>
+                  <TableCell>{patient.phone ?? '—'}</TableCell>
+                  <TableCell>{patient.status}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </Paper>

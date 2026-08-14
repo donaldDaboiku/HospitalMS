@@ -11,7 +11,7 @@ Production-oriented modular monolith for hospitals and clinics.
 
 ## Current status
 
-**Phase 2 — Patient core is complete for local run.**
+**Phase 3 — Appointments & light clinical is complete for local run.**
 
 Working now:
 
@@ -20,11 +20,12 @@ Working now:
 - Login / logout / protected routes
 - Users, roles, permissions
 - Audit log foundation
-- Dashboard shell
-- Tests for auth, authorization, users, and audit
+- Dashboard shell with live appointment/waiting/doctor counts
+- Tests for auth, patients, appointments, triage, and clinical notes
 - Patient registration, tenant-scoped MRNs, duplicate checks, search, and profile access auditing
+- Appointment booking/check-in/cancel, encounters, triage/vitals, notes, and diagnoses
 
-Not built yet: appointments, clinical, lab, pharmacy, billing, IPD, insurance, patient portal.
+Not built yet: full calendar UI, deep consultations, procedures, lab, pharmacy, billing, IPD, insurance, patient portal.
 
 ## Local requirements
 

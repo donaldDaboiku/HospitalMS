@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2026-08-14
+
+### Added
+
+- Doctor profiles and weekday schedules
+- Appointment booking, cancellation, and check-in (creates an open encounter)
+- Encounters with triage/vitals, light clinical notes, and ICD-10-style diagnoses
+- Live dashboard counts for today's appointments, waiting patients, and available doctors
+- Staff console pages for today's appointments, waiting list, and encounter workflows
+
 ## 0.2.0 — 2026-08-14
 
 ### Added

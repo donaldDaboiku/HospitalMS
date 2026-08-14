@@ -13,6 +13,10 @@ import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { PatientProfilePage } from '@/pages/PatientProfilePage'
 import { PatientsPage } from '@/pages/PatientsPage'
 import { RegisterPatientPage } from '@/pages/RegisterPatientPage'
+import { TodaysAppointmentsPage } from '@/pages/TodaysAppointmentsPage'
+import { WaitingListPage } from '@/pages/WaitingListPage'
+import { EncountersPage } from '@/pages/EncountersPage'
+import { EncounterDetailPage } from '@/pages/EncounterDetailPage'
 import { theme } from '@/theme'
 
 const queryClient = new QueryClient({
@@ -41,6 +45,10 @@ export default function App() {
                   <Route path="/patients" element={<PatientsPage />} />
                   <Route path="/patients/register" element={<RegisterPatientPage />} />
                   <Route path="/patients/:id" element={<PatientProfilePage />} />
+                  <Route path="/appointments/today" element={<TodaysAppointmentsPage />} />
+                  <Route path="/appointments/waiting" element={<WaitingListPage />} />
+                  <Route path="/clinical/encounters" element={<EncountersPage />} />
+                  <Route path="/clinical/encounters/:id" element={<EncounterDetailPage />} />
                   <Route path="/admin/users" element={<UsersPage />} />
                   <Route path="/admin/roles" element={<RolesPage />} />
                   <Route path="/admin/audit-logs" element={<AuditLogsPage />} />

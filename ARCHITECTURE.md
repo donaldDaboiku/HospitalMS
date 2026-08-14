@@ -31,6 +31,8 @@ Each module under `backend/app/Modules/{Name}` may contain:
 
 `ModuleServiceProvider` loads every `Routes/api.php` at ` /api/v1`.
 
+Active modules through Phase 3: Authentication, Users, Roles, Settings, Audit, Dashboard, Patients, Doctors, Appointments, Clinical.
+
 Controllers stay thin. Authorization lives in policies and permission names. Mutations that matter clinically or financially must write an audit log from a service, not from the UI.
 
 ## Multi-hospital

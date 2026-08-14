@@ -150,3 +150,87 @@ export type PatientIdentification = {
   issuer: string | null
   expires_at: string | null
 }
+
+export type Doctor = {
+  id: string
+  hospital_id: string
+  user_id: string
+  specialty: string | null
+  is_available: boolean
+  user?: { id: string; first_name: string; last_name: string; email: string; name?: string }
+  department?: { id: string; name: string; code: string } | null
+}
+
+export type Appointment = {
+  id: string
+  hospital_id: string
+  patient_id: string
+  doctor_user_id: string
+  department_id: string | null
+  scheduled_at: string
+  status: string
+  type: string
+  reason: string | null
+  notes: string | null
+  checked_in_at: string | null
+  patient?: { id: string; mrn: string; name: string; phone: string | null } | null
+  doctor?: { id: string; name: string; email: string } | null
+  department?: { id: string; name: string; code: string } | null
+}
+
+export type Encounter = {
+  id: string
+  hospital_id: string
+  patient_id: string
+  appointment_id: string | null
+  doctor_user_id: string | null
+  department_id: string | null
+  type: string
+  status: string
+  started_at: string
+  closed_at: string | null
+  patient?: { id: string; mrn: string; name: string } | null
+  doctor?: { id: string; name: string } | null
+  triage?: TriageAssessment | null
+  clinical_notes?: ClinicalNote[]
+  diagnoses?: Diagnosis[]
+}
+
+export type TriageAssessment = {
+  id: string
+  temperature_c: number | null
+  systolic_bp: number | null
+  diastolic_bp: number | null
+  pulse: number | null
+  respiratory_rate: number | null
+  oxygen_saturation: number | null
+  weight_kg: number | null
+  height_cm: number | null
+  bmi: number | null
+  pain_score: number | null
+  consciousness_level: string | null
+  allergies_noted: string | null
+  chief_complaint: string | null
+  priority: string
+}
+
+export type ClinicalNote = {
+  id: string
+  chief_complaint: string | null
+  assessment: string | null
+  treatment_plan: string | null
+  notes: string | null
+}
+
+export type Diagnosis = {
+  id: string
+  icd10_code: string | null
+  description: string
+  type: string
+}
+
+export type Department = {
+  id: string
+  name: string
+  code: string
+}

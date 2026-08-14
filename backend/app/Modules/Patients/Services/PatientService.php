@@ -145,23 +145,26 @@ class PatientService
 
     private function nextMrn(string $hospitalId): string
     {
-        $sequence = DB::table('patient_mrn_sequences')->where('hospital_id', $hospitalId)->lockForUpdate()->first();
+        // lockForUpdate cannot lock a missing row, so concurrent first registrations
+        // can both observe null. Ensure the sequence exists first, then lock it.
+        DB::table('patient_mrn_sequences')->insertOrIgnore([
+            'hospital_id' => $hospitalId,
+            'next_value' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        if ($sequence === null) {
-            DB::table('patient_mrn_sequences')->insert([
-                'hospital_id' => $hospitalId,
-                'next_value' => 2,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $number = 1;
-        } else {
-            $number = $sequence->next_value;
-            DB::table('patient_mrn_sequences')->where('hospital_id', $hospitalId)->update([
-                'next_value' => $number + 1,
-                'updated_at' => now(),
-            ]);
-        }
+        $sequence = DB::table('patient_mrn_sequences')
+            ->where('hospital_id', $hospitalId)
+            ->lockForUpdate()
+            ->first();
+
+        $number = (int) $sequence->next_value;
+
+        DB::table('patient_mrn_sequences')->where('hospital_id', $hospitalId)->update([
+            'next_value' => $number + 1,
+            'updated_at' => now(),
+        ]);
 
         return sprintf('MRN-%06d', $number);
     }

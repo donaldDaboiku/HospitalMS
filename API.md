@@ -38,6 +38,20 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | POST | /patients | yes | patient.create |
 | GET | /patients/{id} | yes | patient.view + hospital scope |
 | PUT | /patients/{id} | yes | patient.edit + hospital scope |
+| GET | /doctors | yes | appointment.view or clinical.view |
+| GET | /appointments | yes | appointment.view |
+| POST | /appointments | yes | appointment.create |
+| GET | /appointments/{id} | yes | appointment.view + hospital scope |
+| PUT | /appointments/{id} | yes | appointment.edit + hospital scope |
+| POST | /appointments/{id}/cancel | yes | appointment.cancel |
+| POST | /appointments/{id}/check-in | yes | appointment.edit |
+| GET | /encounters | yes | clinical.view, triage.view, or appointment.view |
+| POST | /encounters | yes | clinical.create or appointment.create |
+| GET | /encounters/{id} | yes | clinical/triage/appointment view + hospital scope |
+| POST | /encounters/{id}/triage | yes | triage.create |
+| POST | /encounters/{id}/notes | yes | clinical.create |
+| POST | /encounters/{id}/diagnoses | yes | clinical.create |
+| POST | /encounters/{id}/close | yes | clinical.edit |
 
 OpenAPI: [backend/docs/openapi.yaml](backend/docs/openapi.yaml)
 

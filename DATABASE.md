@@ -21,6 +21,13 @@ PostgreSQL is required in development and production. Automated tests use SQLite
 | patient_allergies | Structured allergy list |
 | patient_medical_histories | Existing and resolved conditions |
 | patient_identifications | Approved identifiers such as NIN |
+| doctor_profiles | Specialty, license, availability for doctor users |
+| doctor_schedules | Weekday availability windows |
+| appointments | Scheduled visits with status workflow |
+| encounters | Clinical visits (walk-in or from check-in) |
+| triage_assessments | Vitals, BMI, priority per encounter |
+| clinical_notes | Light SOAP-style notes |
+| diagnoses | ICD-10-style diagnosis records |
 
 All business primary keys are UUIDs.
 

@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Modules\Appointments\Models\Appointment;
+use App\Modules\Appointments\Policies\AppointmentPolicy;
+use App\Modules\Clinical\Models\Encounter;
+use App\Modules\Clinical\Policies\EncounterPolicy;
 use App\Modules\Patients\Models\Patient;
 use App\Modules\Patients\Policies\PatientPolicy;
 use App\Modules\Roles\Models\Permission;
@@ -26,17 +30,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Patient::class, PatientPolicy::class);
+        Gate::policy(Appointment::class, AppointmentPolicy::class);
+        Gate::policy(Encounter::class, EncounterPolicy::class);
 
-        Route::bind('patient', function (string $value) {
-            $query = Patient::query()->whereKey($value);
-            $user = request()->user();
-
-            if ($user instanceof User && ! $user->isSuperAdmin()) {
-                $query->where('hospital_id', $user->hospital_id);
-            }
-
-            return $query->firstOrFail();
-        });
+        $this->bindHospitalScoped('patient', Patient::class);
+        $this->bindHospitalScoped('appointment', Appointment::class);
+        $this->bindHospitalScoped('encounter', Encounter::class);
 
         Gate::before(function (User $user, string $ability) {
             return $user->isSuperAdmin() ? true : null;
@@ -54,5 +53,19 @@ class AppServiceProvider extends ServiceProvider
             'permission.models.role' => Role::class,
             'permission.models.permission' => Permission::class,
         ]);
+    }
+
+    private function bindHospitalScoped(string $parameter, string $modelClass): void
+    {
+        Route::bind($parameter, function (string $value) use ($modelClass) {
+            $query = $modelClass::query()->whereKey($value);
+            $user = request()->user();
+
+            if ($user instanceof User && ! $user->isSuperAdmin()) {
+                $query->where('hospital_id', $user->hospital_id);
+            }
+
+            return $query->firstOrFail();
+        });
     }
 }

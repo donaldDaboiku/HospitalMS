@@ -3,9 +3,12 @@
 namespace App\Modules\Dashboard\Http\Controllers;
 
 use App\Core\Http\ApiResponse;
+use App\Core\Support\Roles;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Appointments\Models\Appointment;
 use App\Modules\Audit\Models\AuditLog;
+use App\Modules\Doctors\Models\DoctorProfile;
 use App\Modules\Patients\Models\Patient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,9 +33,20 @@ class DashboardController extends Controller
             'total_patients' => Patient::query()
                 ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
                 ->count(),
-            'todays_appointments' => 0,
-            'waiting_patients' => 0,
-            'doctors_available' => 0,
+            'todays_appointments' => Appointment::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->whereDate('scheduled_at', now()->toDateString())
+                ->whereNotIn('status', ['cancelled'])
+                ->count(),
+            'waiting_patients' => Appointment::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->where('status', 'checked_in')
+                ->count(),
+            'doctors_available' => DoctorProfile::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->where('is_available', true)
+                ->whereHas('user', fn ($query) => $query->role(Roles::DOCTOR)->where('is_active', true))
+                ->count(),
             'admissions' => 0,
             'discharges' => 0,
             'bed_occupancy' => 0,
