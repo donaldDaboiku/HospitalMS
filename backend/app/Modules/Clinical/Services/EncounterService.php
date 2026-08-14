@@ -26,7 +26,7 @@ class EncounterService
     {
         $query = Encounter::query()->with([
             'patient:id,mrn,first_name,middle_name,last_name',
-            'doctor:id,first_name,last_name',
+            'doctor:id,first_name,middle_name,last_name',
             'department:id,name,code',
             'triage',
             'appointment:id,scheduled_at,status',

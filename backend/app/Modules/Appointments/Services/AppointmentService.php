@@ -23,7 +23,7 @@ class AppointmentService
     {
         $query = Appointment::query()->with([
             'patient:id,mrn,first_name,middle_name,last_name,date_of_birth,phone',
-            'doctor:id,first_name,last_name,email',
+            'doctor:id,first_name,middle_name,last_name,email',
             'department:id,name,code',
         ]);
 
