@@ -11,10 +11,15 @@ import {
 } from '@mui/material'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { navigation } from '@/routes/nav'
+import { navigation, type NavItem } from '@/routes/nav'
 import { useAuth } from '@/hooks/useAuth'
 
 const DRAWER_WIDTH = 280
+
+function hasPermission(can: (permission: string) => boolean, permission?: string | string[]): boolean {
+  if (!permission) return true
+  return Array.isArray(permission) ? permission.some((entry) => can(entry)) : can(permission)
+}
 
 export function Sidebar() {
   const { can } = useAuth()
@@ -23,7 +28,7 @@ export function Sidebar() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({})
 
   const items = useMemo(
-    () => navigation.filter((item) => !item.permission || can(item.permission)),
+    () => navigation.filter((item: NavItem) => hasPermission(can, item.permission)),
     [can],
   )
 
@@ -55,7 +60,7 @@ export function Sidebar() {
         {items.map((item) => {
           const selected = location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
           const open = openMenus[item.label] ?? selected
-          const children = item.children?.filter((child) => !child.permission || can(child.permission)) ?? []
+          const children = item.children?.filter((child) => hasPermission(can, child.permission)) ?? []
 
           return (
             <Box key={item.label}>

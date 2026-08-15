@@ -304,3 +304,29 @@ export type RadiologyOrder = {
   ordered_by?: { id: string; name: string } | null
   report?: { id: string; findings: string; impression: string | null; status: string; reported_at: string } | null
 }
+
+export type Product = {
+  id: string
+  sku: string
+  name: string
+  generic_name: string | null
+  form: string | null
+  strength: string | null
+  unit: string
+  reorder_level: number
+  stock_available?: number | null
+}
+
+export type Prescription = {
+  id: string
+  status: string
+  prescribed_at: string
+  patient?: { id: string; mrn: string; name: string } | null
+  items?: Array<{
+    id: string
+    status: string
+    quantity_prescribed: number
+    quantity_dispensed: number
+    product?: Product | null
+  }>
+}

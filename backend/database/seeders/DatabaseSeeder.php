@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DoctorSeeder::class,
             LabTestSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

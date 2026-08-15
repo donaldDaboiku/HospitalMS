@@ -11,7 +11,7 @@ Production-oriented modular monolith for hospitals and clinics.
 
 ## Current status
 
-**Phase 4 — Lab & Radiology is complete for local run.**
+**Phase 5 — Pharmacy & inventory is complete for local run.**
 
 Working now:
 
@@ -20,13 +20,14 @@ Working now:
 - Login / logout / protected routes
 - Users, roles, permissions
 - Audit log foundation
-- Dashboard shell with live appointment/waiting/doctor/pending-lab counts
-- Tests for auth, patients, appointments, clinical, lab, and radiology
+- Dashboard shell with live appointment/waiting/doctor/pending-lab/prescription/low-stock counts
+- Tests for auth, patients, appointments, clinical, lab, radiology, and pharmacy
 - Patient registration, MRNs, family registration, photos, and related-patient mapping
 - Appointment booking/check-in/cancel, encounters, triage/vitals, notes, and diagnoses
 - Lab catalog/orders/specimen collection/results/verify and radiology orders/reports
+- Medicine catalog, stock batches with expiry protection, prescriptions, and dispensing
 
-Not built yet: full calendar UI, deep consultations, pharmacy, billing, IPD, insurance, patient portal.
+Not built yet: full calendar UI, deep consultations, supplier/purchase-order UI, billing, IPD, insurance, patient portal.
 
 ## Local requirements
 
@@ -94,6 +95,8 @@ Password (unless you override `SEED_ADMIN_PASSWORD`): `ChangeMe!Hms2026`
 | reception@hms.local | RECEPTIONIST |
 | lab@hms.local | LAB_TECHNICIAN |
 | radiology@hms.local | RADIOLOGIST |
+| pharmacy@hms.local | PHARMACIST |
+| store@hms.local | STORE_MANAGER |
 
 Change these passwords before any real hospital data is stored.
 

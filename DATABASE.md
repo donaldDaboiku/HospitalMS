@@ -35,6 +35,15 @@ PostgreSQL is required in development and production. Automated tests use SQLite
 | lab_results | Preliminary/final lab results |
 | radiology_orders | Imaging orders |
 | radiology_reports | Radiology findings and impressions |
+| suppliers | Medicine/supply vendors |
+| products | Hospital medicine/product catalog |
+| purchase_orders | Procurement purchase orders |
+| purchase_order_items | Line items on a purchase order |
+| stock_batches | Received stock with batch and expiry |
+| stock_movements | Inventory receipts, dispenses, and adjustments |
+| prescriptions | Medication prescriptions |
+| prescription_items | Medicines on a prescription |
+| dispenses | Dispense events against a stock batch |
 
 All business primary keys are UUIDs.
 

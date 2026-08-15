@@ -67,6 +67,12 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | POST | /radiology/orders | yes | radiology.order |
 | GET | /radiology/orders/{id} | yes | radiology.* + hospital scope |
 | POST | /radiology/orders/{id}/report | yes | radiology.report |
+| GET | /products | yes | inventory.view or pharmacy.prescribe |
+| POST | /products | yes | inventory.create |
+| POST | /products/{id}/receive | yes | inventory.create + hospital scope |
+| GET | /prescriptions | yes | pharmacy.prescribe or pharmacy.dispense |
+| POST | /prescriptions | yes | pharmacy.prescribe |
+| POST | /prescription-items/{id}/dispense | yes | pharmacy.dispense + hospital scope |
 
 OpenAPI: [backend/docs/openapi.yaml](backend/docs/openapi.yaml)
 

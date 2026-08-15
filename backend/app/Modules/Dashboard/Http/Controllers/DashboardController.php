@@ -11,6 +11,8 @@ use App\Modules\Audit\Models\AuditLog;
 use App\Modules\Doctors\Models\DoctorProfile;
 use App\Modules\Laboratory\Models\LabOrder;
 use App\Modules\Patients\Models\Patient;
+use App\Modules\Pharmacy\Models\Prescription;
+use App\Modules\Pharmacy\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -55,10 +57,17 @@ class DashboardController extends Controller
                 ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
                 ->whereIn('status', ['ordered', 'collected', 'in_progress'])
                 ->count(),
-            'pending_prescriptions' => 0,
+            'pending_prescriptions' => Prescription::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->whereIn('status', ['prescribed', 'partial'])
+                ->count(),
             'todays_revenue' => 0,
             'outstanding_bills' => 0,
-            'low_stock' => 0,
+            'low_stock' => Product::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->where('is_active', true)
+                ->whereRaw('(select coalesce(sum(quantity_available), 0) from stock_batches where stock_batches.product_id = products.id) <= products.reorder_level')
+                ->count(),
             'emergency_cases' => 0,
         ]);
     }

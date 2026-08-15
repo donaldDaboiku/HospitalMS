@@ -37,6 +37,8 @@ class UserSeeder extends Seeder
             ['email' => 'reception@hms.local', 'first_name' => 'Tunde', 'last_name' => 'Balogun', 'role' => Roles::RECEPTIONIST],
             ['email' => 'lab@hms.local', 'first_name' => 'Ifeanyi', 'last_name' => 'Nwosu', 'role' => Roles::LAB_TECHNICIAN],
             ['email' => 'radiology@hms.local', 'first_name' => 'Ngozi', 'last_name' => 'Adeyemi', 'role' => Roles::RADIOLOGIST],
+            ['email' => 'pharmacy@hms.local', 'first_name' => 'Bola', 'last_name' => 'Adebayo', 'role' => Roles::PHARMACIST],
+            ['email' => 'store@hms.local', 'first_name' => 'Musa', 'last_name' => 'Ibrahim', 'role' => Roles::STORE_MANAGER],
         ];
 
         foreach ($staff as $row) {

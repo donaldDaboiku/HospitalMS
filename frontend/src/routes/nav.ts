@@ -1,8 +1,9 @@
 export type NavItem = {
   label: string
   to: string
-  permission?: string
-  children?: { label: string; to: string; permission?: string; enabled?: boolean }[]
+  /** Single permission or any-of list (OR). */
+  permission?: string | string[]
+  children?: { label: string; to: string; permission?: string | string[]; enabled?: boolean }[]
   enabled?: boolean
 }
 
@@ -69,11 +70,11 @@ export const navigation: NavItem[] = [
   {
     label: 'Pharmacy',
     to: '/pharmacy',
-    permission: 'pharmacy.dispense',
-    enabled: false,
+    permission: ['pharmacy.prescribe', 'pharmacy.dispense'],
+    enabled: true,
     children: [
-      { label: 'Prescriptions', to: '/pharmacy/prescriptions', enabled: false },
-      { label: 'Dispensing', to: '/pharmacy/dispensing', enabled: false },
+      { label: 'Prescriptions', to: '/pharmacy', permission: ['pharmacy.prescribe', 'pharmacy.dispense'], enabled: true },
+      { label: 'Dispensing', to: '/pharmacy', permission: 'pharmacy.dispense', enabled: true },
       { label: 'Inventory', to: '/pharmacy/inventory', enabled: false },
     ],
   },

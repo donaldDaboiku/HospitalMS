@@ -11,6 +11,8 @@ import type {
   LabResult,
   LabTest,
   Patient,
+  Prescription,
+  Product,
   RadiologyOrder,
   RoleRecord,
   StaffUser,
@@ -139,6 +141,26 @@ export async function addDiagnosis(encounterId: string, payload: Record<string, 
 
 export async function closeEncounter(encounterId: string): Promise<Encounter> {
   const { data } = await http.post<ApiSuccess<Encounter>>(`/encounters/${encounterId}/close`)
+  return data.data
+}
+
+export async function fetchProducts(params: Record<string, string> = {}): Promise<Product[]> {
+  const { data } = await http.get<ApiSuccess<Product[]>>('/products', { params })
+  return data.data
+}
+
+export async function createPrescription(payload: { patient_id: string; encounter_id?: string | null; notes?: string; items: Array<{ product_id: string; quantity_prescribed: number; dose?: string; frequency?: string; instructions?: string }> }): Promise<Prescription> {
+  const { data } = await http.post<ApiSuccess<Prescription>>('/prescriptions', payload)
+  return data.data
+}
+
+export async function fetchPrescriptions(params: Record<string, string> = {}): Promise<Prescription[]> {
+  const { data } = await http.get<ApiSuccess<Prescription[]>>('/prescriptions', { params })
+  return data.data
+}
+
+export async function dispensePrescriptionItem(id: string, quantity: number): Promise<unknown> {
+  const { data } = await http.post(`/prescription-items/${id}/dispense`, { quantity })
   return data.data
 }
 

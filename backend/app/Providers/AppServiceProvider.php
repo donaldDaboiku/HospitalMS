@@ -14,6 +14,8 @@ use App\Modules\Laboratory\Models\LabTest;
 use App\Modules\Laboratory\Policies\LaboratoryPolicy;
 use App\Modules\Patients\Models\Patient;
 use App\Modules\Patients\Policies\PatientPolicy;
+use App\Modules\Pharmacy\Models\PrescriptionItem;
+use App\Modules\Pharmacy\Models\Product;
 use App\Modules\Radiology\Models\RadiologyOrder;
 use App\Modules\Radiology\Policies\RadiologyPolicy;
 use App\Modules\Roles\Models\Permission;
@@ -50,6 +52,18 @@ class AppServiceProvider extends ServiceProvider
         $this->bindHospitalScoped('labOrder', LabOrder::class);
         $this->bindHospitalScoped('labResult', LabResult::class);
         $this->bindHospitalScoped('radiologyOrder', RadiologyOrder::class);
+        $this->bindHospitalScoped('product', Product::class);
+
+        Route::bind('prescriptionItem', function (string $value) {
+            $query = PrescriptionItem::query()->whereKey($value)->whereHas('prescription', function ($prescriptions) {
+                $user = request()->user();
+                if ($user instanceof User && ! $user->isSuperAdmin()) {
+                    $prescriptions->where('hospital_id', $user->hospital_id);
+                }
+            });
+
+            return $query->firstOrFail();
+        });
 
         Route::bind('labOrderItem', function (string $value) {
             $query = LabOrderItem::query()->whereKey($value)->whereHas('order', function ($orders) {

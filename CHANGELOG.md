@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-08-15
+
+### Added
+
+- Medicine/product catalog with stock batches, expiry-aware dispensing, and stock movements
+- Prescription create/list and pharmacist dispense workflow
+- Live dashboard counts for pending prescriptions and low-stock products
+- Seeded pharmacist, store manager, and sample medicines
+- Staff console pharmacy page for prescribe and dispense
+
 ## 0.4.0 — 2026-08-14
 
 ### Added
