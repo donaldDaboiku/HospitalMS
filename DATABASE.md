@@ -28,6 +28,13 @@ PostgreSQL is required in development and production. Automated tests use SQLite
 | triage_assessments | Vitals, BMI, priority per encounter |
 | clinical_notes | Light SOAP-style notes |
 | diagnoses | ICD-10-style diagnosis records |
+| lab_tests | Hospital lab test catalog |
+| lab_orders | Lab orders for a patient/encounter |
+| lab_order_items | Ordered tests on a lab order |
+| lab_specimens | Specimen collection events |
+| lab_results | Preliminary/final lab results |
+| radiology_orders | Imaging orders |
+| radiology_reports | Radiology findings and impressions |
 
 All business primary keys are UUIDs.
 

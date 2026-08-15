@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Modules\Appointments\Models\Appointment;
 use App\Modules\Audit\Models\AuditLog;
 use App\Modules\Doctors\Models\DoctorProfile;
+use App\Modules\Laboratory\Models\LabOrder;
 use App\Modules\Patients\Models\Patient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,7 +51,10 @@ class DashboardController extends Controller
             'admissions' => 0,
             'discharges' => 0,
             'bed_occupancy' => 0,
-            'pending_lab_results' => 0,
+            'pending_lab_results' => LabOrder::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->whereIn('status', ['ordered', 'collected', 'in_progress'])
+                ->count(),
             'pending_prescriptions' => 0,
             'todays_revenue' => 0,
             'outstanding_bills' => 0,

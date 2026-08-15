@@ -7,8 +7,15 @@ use App\Modules\Appointments\Models\Appointment;
 use App\Modules\Appointments\Policies\AppointmentPolicy;
 use App\Modules\Clinical\Models\Encounter;
 use App\Modules\Clinical\Policies\EncounterPolicy;
+use App\Modules\Laboratory\Models\LabOrder;
+use App\Modules\Laboratory\Models\LabOrderItem;
+use App\Modules\Laboratory\Models\LabResult;
+use App\Modules\Laboratory\Models\LabTest;
+use App\Modules\Laboratory\Policies\LaboratoryPolicy;
 use App\Modules\Patients\Models\Patient;
 use App\Modules\Patients\Policies\PatientPolicy;
+use App\Modules\Radiology\Models\RadiologyOrder;
+use App\Modules\Radiology\Policies\RadiologyPolicy;
 use App\Modules\Roles\Models\Permission;
 use App\Modules\Roles\Models\Role;
 use App\Modules\Users\Policies\UserPolicy;
@@ -32,10 +39,28 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Encounter::class, EncounterPolicy::class);
+        Gate::policy(LabTest::class, LaboratoryPolicy::class);
+        Gate::policy(LabOrder::class, LaboratoryPolicy::class);
+        Gate::policy(LabResult::class, LaboratoryPolicy::class);
+        Gate::policy(RadiologyOrder::class, RadiologyPolicy::class);
 
         $this->bindHospitalScoped('patient', Patient::class);
         $this->bindHospitalScoped('appointment', Appointment::class);
         $this->bindHospitalScoped('encounter', Encounter::class);
+        $this->bindHospitalScoped('labOrder', LabOrder::class);
+        $this->bindHospitalScoped('labResult', LabResult::class);
+        $this->bindHospitalScoped('radiologyOrder', RadiologyOrder::class);
+
+        Route::bind('labOrderItem', function (string $value) {
+            $query = LabOrderItem::query()->whereKey($value)->whereHas('order', function ($orders) {
+                $user = request()->user();
+                if ($user instanceof User && ! $user->isSuperAdmin()) {
+                    $orders->where('hospital_id', $user->hospital_id);
+                }
+            });
+
+            return $query->firstOrFail();
+        });
 
         Gate::before(function (User $user, string $ability) {
             return $user->isSuperAdmin() ? true : null;

@@ -7,7 +7,11 @@ import type {
   Department,
   Doctor,
   Encounter,
+  LabOrder,
+  LabResult,
+  LabTest,
   Patient,
+  RadiologyOrder,
   RoleRecord,
   StaffUser,
 } from '@/types/api'
@@ -135,5 +139,67 @@ export async function addDiagnosis(encounterId: string, payload: Record<string, 
 
 export async function closeEncounter(encounterId: string): Promise<Encounter> {
   const { data } = await http.post<ApiSuccess<Encounter>>(`/encounters/${encounterId}/close`)
+  return data.data
+}
+
+export async function fetchLabTests(): Promise<LabTest[]> {
+  const { data } = await http.get<ApiSuccess<LabTest[]>>('/lab/tests')
+  return data.data
+}
+
+export async function fetchLabOrders(params: Record<string, string> = {}): Promise<LabOrder[]> {
+  const { data } = await http.get<ApiSuccess<LabOrder[]>>('/lab/orders', { params })
+  return data.data
+}
+
+export async function fetchLabOrder(id: string): Promise<LabOrder> {
+  const { data } = await http.get<ApiSuccess<LabOrder>>(`/lab/orders/${id}`)
+  return data.data
+}
+
+export async function createLabOrder(payload: {
+  patient_id: string
+  lab_test_ids: string[]
+  encounter_id?: string | null
+  priority?: string
+  clinical_notes?: string
+}): Promise<LabOrder> {
+  const { data } = await http.post<ApiSuccess<LabOrder>>('/lab/orders', payload)
+  return data.data
+}
+
+export async function collectLabSpecimen(orderId: string, payload: { specimen_type: string; notes?: string }): Promise<LabOrder> {
+  const { data } = await http.post<ApiSuccess<LabOrder>>(`/lab/orders/${orderId}/collect`, payload)
+  return data.data
+}
+
+export async function enterLabResult(itemId: string, payload: { value: string; unit?: string; flag?: string; notes?: string }): Promise<LabResult> {
+  const { data } = await http.post<ApiSuccess<LabResult>>(`/lab/order-items/${itemId}/results`, payload)
+  return data.data
+}
+
+export async function verifyLabResult(resultId: string): Promise<LabResult> {
+  const { data } = await http.post<ApiSuccess<LabResult>>(`/lab/results/${resultId}/verify`)
+  return data.data
+}
+
+export async function fetchRadiologyOrders(params: Record<string, string> = {}): Promise<RadiologyOrder[]> {
+  const { data } = await http.get<ApiSuccess<RadiologyOrder[]>>('/radiology/orders', { params })
+  return data.data
+}
+
+export async function createRadiologyOrder(payload: {
+  patient_id: string
+  modality: string
+  study_name: string
+  priority?: string
+  clinical_indication?: string
+}): Promise<RadiologyOrder> {
+  const { data } = await http.post<ApiSuccess<RadiologyOrder>>('/radiology/orders', payload)
+  return data.data
+}
+
+export async function saveRadiologyReport(orderId: string, payload: { findings: string; impression?: string }): Promise<unknown> {
+  const { data } = await http.post(`/radiology/orders/${orderId}/report`, payload)
   return data.data
 }

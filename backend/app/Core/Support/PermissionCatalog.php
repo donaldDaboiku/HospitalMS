@@ -68,7 +68,7 @@ final class PermissionCatalog
                 'appointment.view', 'appointment.create', 'appointment.edit', 'appointment.cancel',
                 'clinical.view', 'clinical.create', 'clinical.edit',
                 'triage.view',
-                'lab.order',
+                'lab.order', 'lab.verify',
                 'radiology.order',
                 'pharmacy.prescribe',
                 'ward.view',
@@ -110,7 +110,7 @@ final class PermissionCatalog
             Roles::LAB_TECHNICIAN => self::merge(
                 'dashboard.view',
                 'patient.view',
-                'lab.order', 'lab.collect', 'lab.result',
+                'lab.order', 'lab.collect', 'lab.result', 'lab.verify',
                 'department.view',
             ),
             Roles::RADIOLOGIST => self::merge(

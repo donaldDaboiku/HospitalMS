@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 — 2026-08-14
+
+### Added
+
+- Laboratory test catalog, orders, specimen collection, result entry, and verification
+- Radiology orders and reports
+- Live dashboard count for pending lab work
+- Seeded lab technician and radiologist users plus sample lab tests
+- Staff console pages for lab catalog/orders and radiology orders
+
 ## 0.3.0 — 2026-08-14
 
 ### Added

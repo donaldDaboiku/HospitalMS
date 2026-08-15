@@ -243,3 +243,64 @@ export type Department = {
   name: string
   code: string
 }
+
+export type LabTest = {
+  id: string
+  hospital_id: string
+  code: string
+  name: string
+  category: string | null
+  specimen_type: string | null
+  unit: string | null
+  reference_range: string | null
+  turnaround_hours: number | null
+  is_active: boolean
+}
+
+export type LabResult = {
+  id: string
+  value: string
+  unit: string | null
+  flag: string
+  status: string
+  notes: string | null
+  verified_at: string | null
+}
+
+export type LabOrderItem = {
+  id: string
+  status: string
+  lab_test_id: string
+  test?: LabTest | null
+  result?: LabResult | null
+}
+
+export type LabOrder = {
+  id: string
+  hospital_id: string
+  patient_id: string
+  encounter_id: string | null
+  status: string
+  priority: string
+  clinical_notes: string | null
+  ordered_at: string
+  patient?: { id: string; mrn: string; name: string; phone?: string | null } | null
+  ordered_by?: { id: string; name: string } | null
+  items?: LabOrderItem[]
+  specimen?: { id: string; specimen_type: string; collected_at: string; status: string } | null
+}
+
+export type RadiologyOrder = {
+  id: string
+  hospital_id: string
+  patient_id: string
+  modality: string
+  study_name: string
+  status: string
+  priority: string
+  clinical_indication: string | null
+  ordered_at: string
+  patient?: { id: string; mrn: string; name: string } | null
+  ordered_by?: { id: string; name: string } | null
+  report?: { id: string; findings: string; impression: string | null; status: string; reported_at: string } | null
+}

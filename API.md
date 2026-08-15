@@ -55,6 +55,18 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | POST | /encounters/{id}/notes | yes | clinical.create |
 | POST | /encounters/{id}/diagnoses | yes | clinical.create |
 | POST | /encounters/{id}/close | yes | clinical.edit |
+| GET | /lab/tests | yes | lab.order / collect / result / verify |
+| POST | /lab/tests | yes | settings.manage or department.manage |
+| GET | /lab/orders | yes | lab.order / collect / result / verify |
+| POST | /lab/orders | yes | lab.order |
+| GET | /lab/orders/{id} | yes | lab.* + hospital scope |
+| POST | /lab/orders/{id}/collect | yes | lab.collect |
+| POST | /lab/order-items/{id}/results | yes | lab.result |
+| POST | /lab/results/{id}/verify | yes | lab.verify |
+| GET | /radiology/orders | yes | radiology.order / report / approve |
+| POST | /radiology/orders | yes | radiology.order |
+| GET | /radiology/orders/{id} | yes | radiology.* + hospital scope |
+| POST | /radiology/orders/{id}/report | yes | radiology.report |
 
 OpenAPI: [backend/docs/openapi.yaml](backend/docs/openapi.yaml)
 

@@ -18,6 +18,10 @@ import { TodaysAppointmentsPage } from '@/pages/TodaysAppointmentsPage'
 import { WaitingListPage } from '@/pages/WaitingListPage'
 import { EncountersPage } from '@/pages/EncountersPage'
 import { EncounterDetailPage } from '@/pages/EncounterDetailPage'
+import { LabCatalogPage } from '@/pages/LabCatalogPage'
+import { LabOrdersPage } from '@/pages/LabOrdersPage'
+import { LabOrderDetailPage } from '@/pages/LabOrderDetailPage'
+import { RadiologyOrdersPage } from '@/pages/RadiologyOrdersPage'
 import { theme } from '@/theme'
 
 const queryClient = new QueryClient({
@@ -51,6 +55,10 @@ export default function App() {
                   <Route path="/appointments/waiting" element={<WaitingListPage />} />
                   <Route path="/clinical/encounters" element={<EncountersPage />} />
                   <Route path="/clinical/encounters/:id" element={<EncounterDetailPage />} />
+                  <Route path="/laboratory/catalog" element={<LabCatalogPage />} />
+                  <Route path="/laboratory/orders" element={<LabOrdersPage />} />
+                  <Route path="/laboratory/orders/:id" element={<LabOrderDetailPage />} />
+                  <Route path="/radiology/orders" element={<RadiologyOrdersPage />} />
                   <Route path="/admin/users" element={<UsersPage />} />
                   <Route path="/admin/roles" element={<RolesPage />} />
                   <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
