@@ -132,4 +132,79 @@ class LabRadiologyTest extends FeatureTestCase
             ->assertJsonPath('data.status', 'reported')
             ->assertJsonPath('data.report.impression', 'No acute cardiopulmonary process.');
     }
+
+    public function test_verified_lab_result_cannot_be_overwritten(): void
+    {
+        $hospital = $this->makeHospital();
+        $doctor = $this->makeUser(Roles::DOCTOR, $hospital);
+        $tech = $this->makeUser(Roles::LAB_TECHNICIAN, $hospital);
+        $patient = $this->makePatient($hospital);
+        $test = $this->makeTest($hospital);
+
+        $order = $this->actingAsApi($doctor)->postJson('/api/v1/lab/orders', [
+            'patient_id' => $patient->id,
+            'lab_test_ids' => [$test->id],
+        ])->assertCreated()->json('data');
+
+        $this->actingAsApi($tech)->postJson('/api/v1/lab/orders/'.$order['id'].'/collect', [
+            'specimen_type' => 'Serum',
+        ])->assertOk();
+
+        $itemId = $order['items'][0]['id'];
+        $result = $this->actingAsApi($tech)->postJson('/api/v1/lab/order-items/'.$itemId.'/results', [
+            'value' => '6.2',
+            'flag' => 'high',
+        ])->assertOk()->json('data');
+
+        $this->actingAsApi($doctor)->postJson('/api/v1/lab/results/'.$result['id'].'/verify')
+            ->assertOk()
+            ->assertJsonPath('data.status', 'final');
+
+        $this->actingAsApi($tech)->postJson('/api/v1/lab/order-items/'.$itemId.'/results', [
+            'value' => '4.1',
+            'flag' => 'normal',
+        ])->assertStatus(422)
+            ->assertJsonValidationErrors(['status']);
+
+        $this->assertDatabaseHas('lab_results', [
+            'id' => $result['id'],
+            'value' => '6.2',
+            'status' => 'final',
+        ]);
+        $this->assertDatabaseHas('lab_orders', [
+            'id' => $order['id'],
+            'status' => 'completed',
+        ]);
+    }
+
+    public function test_reported_radiology_order_cannot_be_overwritten(): void
+    {
+        $hospital = $this->makeHospital();
+        $doctor = $this->makeUser(Roles::DOCTOR, $hospital);
+        $radiologist = $this->makeUser(Roles::RADIOLOGIST, $hospital);
+        $patient = $this->makePatient($hospital);
+
+        $orderId = $this->actingAsApi($doctor)->postJson('/api/v1/radiology/orders', [
+            'patient_id' => $patient->id,
+            'modality' => 'XRAY',
+            'study_name' => 'Chest PA',
+            'clinical_indication' => 'Cough',
+        ])->assertCreated()->json('data.id');
+
+        $this->actingAsApi($radiologist)->postJson('/api/v1/radiology/orders/'.$orderId.'/report', [
+            'findings' => 'Clear lung fields.',
+            'impression' => 'No acute cardiopulmonary process.',
+        ])->assertOk();
+
+        $this->actingAsApi($radiologist)->postJson('/api/v1/radiology/orders/'.$orderId.'/report', [
+            'findings' => 'Altered findings.',
+            'impression' => 'Should not replace final report.',
+        ])->assertStatus(422)
+            ->assertJsonValidationErrors(['status']);
+
+        $this->actingAsApi($radiologist)->getJson('/api/v1/radiology/orders/'.$orderId)
+            ->assertOk()
+            ->assertJsonPath('data.report.findings', 'Clear lung fields.')
+            ->assertJsonPath('data.report.impression', 'No acute cardiopulmonary process.');
+    }
 }

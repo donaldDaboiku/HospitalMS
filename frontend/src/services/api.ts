@@ -7,6 +7,7 @@ import type {
   Department,
   Doctor,
   Encounter,
+  Invoice,
   LabOrder,
   LabResult,
   LabTest,
@@ -223,5 +224,37 @@ export async function createRadiologyOrder(payload: {
 
 export async function saveRadiologyReport(orderId: string, payload: { findings: string; impression?: string }): Promise<unknown> {
   const { data } = await http.post(`/radiology/orders/${orderId}/report`, payload)
+  return data.data
+}
+
+export async function fetchInvoices(params: Record<string, string> = {}): Promise<Invoice[]> {
+  const { data } = await http.get<ApiSuccess<Invoice[]>>('/invoices', { params })
+  return data.data
+}
+
+export async function createInvoice(payload: {
+  patient_id: string
+  encounter_id?: string | null
+  discount?: number
+  tax?: number
+  notes?: string
+  items: Array<{ category: string; description: string; quantity: number; unit_price: number }>
+}): Promise<Invoice> {
+  const { data } = await http.post<ApiSuccess<Invoice>>('/invoices', payload)
+  return data.data
+}
+
+export async function fetchInvoice(id: string): Promise<Invoice> {
+  const { data } = await http.get<ApiSuccess<Invoice>>(`/invoices/${id}`)
+  return data.data
+}
+
+export async function issueInvoice(id: string): Promise<Invoice> {
+  const { data } = await http.post<ApiSuccess<Invoice>>(`/invoices/${id}/issue`)
+  return data.data
+}
+
+export async function recordPayment(invoiceId: string, payload: { amount: number; method: string; reference?: string; notes?: string }): Promise<unknown> {
+  const { data } = await http.post(`/invoices/${invoiceId}/payments`, payload)
   return data.data
 }

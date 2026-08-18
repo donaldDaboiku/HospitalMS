@@ -23,6 +23,7 @@ import { LabOrdersPage } from '@/pages/LabOrdersPage'
 import { LabOrderDetailPage } from '@/pages/LabOrderDetailPage'
 import { RadiologyOrdersPage } from '@/pages/RadiologyOrdersPage'
 import { PharmacyPage } from '@/pages/PharmacyPage'
+import { BillingPage } from '@/pages/BillingPage'
 import { theme } from '@/theme'
 
 const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ export default function App() {
                   <Route path="/laboratory/orders/:id" element={<LabOrderDetailPage />} />
                   <Route path="/radiology/orders" element={<RadiologyOrdersPage />} />
                   <Route path="/pharmacy" element={<PharmacyPage />} />
+                  <Route path="/billing" element={<BillingPage />} />
                   <Route path="/admin/users" element={<UsersPage />} />
                   <Route path="/admin/roles" element={<RolesPage />} />
                   <Route path="/admin/audit-logs" element={<AuditLogsPage />} />

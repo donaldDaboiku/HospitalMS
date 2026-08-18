@@ -74,8 +74,12 @@ class RadiologyService
     public function saveReport(User $actor, RadiologyOrder $order, array $data): RadiologyReport
     {
         return DB::transaction(function () use ($actor, $order, $data) {
-            if (in_array($order->status, ['cancelled'], true)) {
+            if ($order->status === 'cancelled') {
                 throw ValidationException::withMessages(['status' => ['Cannot report a cancelled radiology order.']]);
+            }
+
+            if ($order->status === 'reported' || $order->report()->exists()) {
+                throw ValidationException::withMessages(['status' => ['Finalized radiology reports cannot be overwritten.']]);
             }
 
             $report = RadiologyReport::query()->updateOrCreate(

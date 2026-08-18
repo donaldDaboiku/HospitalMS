@@ -170,8 +170,13 @@ class LaboratoryService
     {
         return DB::transaction(function () use ($actor, $item, $data) {
             $order = $item->order;
-            if (! in_array($order->status, ['collected', 'in_progress', 'completed'], true)) {
+            if (! in_array($order->status, ['collected', 'in_progress'], true)) {
                 throw ValidationException::withMessages(['status' => ['Collect the specimen before entering results.']]);
+            }
+
+            $existing = LabResult::query()->where('lab_order_item_id', $item->id)->first();
+            if ($existing?->status === 'final') {
+                throw ValidationException::withMessages(['status' => ['Verified lab results cannot be overwritten.']]);
             }
 
             $result = LabResult::query()->updateOrCreate(

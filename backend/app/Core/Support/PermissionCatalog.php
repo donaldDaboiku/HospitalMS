@@ -133,9 +133,9 @@ final class PermissionCatalog
             ),
             Roles::ACCOUNTANT => self::merge(
                 'dashboard.view',
-                'billing.view', 'billing.approve', 'billing.refund',
-                'payment.view', 'payment.reverse',
-                'insurance.view', 'insurance.claim',
+                'billing.view', 'billing.create', 'billing.approve', 'billing.refund',
+                'payment.view', 'payment.create', 'payment.reverse',
+                'insurance.view', 'insurance.create', 'insurance.claim',
                 'accounting.view', 'accounting.create', 'accounting.close',
                 'reports.view', 'reports.export',
             ),

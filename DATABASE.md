@@ -44,6 +44,13 @@ PostgreSQL is required in development and production. Automated tests use SQLite
 | prescriptions | Medication prescriptions |
 | prescription_items | Medicines on a prescription |
 | dispenses | Dispense events against a stock batch |
+| insurance_providers | Insurance company records |
+| insurance_plans | Coverage plans under a provider |
+| patient_insurances | Patient policy enrolments |
+| invoices | Patient invoices with totals |
+| invoice_items | Line items on an invoice |
+| payments | Payment records against invoices |
+| insurance_claims | Claims submitted to insurers |
 
 All business primary keys are UUIDs.
 

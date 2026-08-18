@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-08-18
+
+### Added
+
+- Invoice creation, issuance, and payment recording with status workflow (draft → issued → partial → paid)
+- Insurance providers, plans, patient insurance policies, and claim submission
+- Live dashboard counts for today's revenue and outstanding bills
+- Seeded accountant and cashier users
+- Staff console billing page with invoice creation, issue, and payment dialog
+- Accountant role now includes billing.create, payment.create, and insurance.create
+
 ## 0.5.0 — 2026-08-15
 
 ### Added

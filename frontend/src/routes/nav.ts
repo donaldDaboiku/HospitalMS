@@ -106,10 +106,10 @@ export const navigation: NavItem[] = [
     label: 'Billing',
     to: '/billing',
     permission: 'billing.view',
-    enabled: false,
+    enabled: true,
     children: [
-      { label: 'Invoices', to: '/billing/invoices', enabled: false },
-      { label: 'Payments', to: '/billing/payments', enabled: false },
+      { label: 'Invoices', to: '/billing', enabled: true },
+      { label: 'Payments', to: '/billing', permission: 'payment.view', enabled: true },
       { label: 'Refunds', to: '/billing/refunds', enabled: false },
     ],
   },

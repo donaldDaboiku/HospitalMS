@@ -73,6 +73,14 @@ Authentication: `Authorization: Bearer {token}` from `POST /auth/login`.
 | GET | /prescriptions | yes | pharmacy.prescribe or pharmacy.dispense |
 | POST | /prescriptions | yes | pharmacy.prescribe |
 | POST | /prescription-items/{id}/dispense | yes | pharmacy.dispense + hospital scope |
+| GET | /invoices | yes | billing.view |
+| POST | /invoices | yes | billing.create |
+| GET | /invoices/{id} | yes | billing.view + hospital scope |
+| POST | /invoices/{id}/issue | yes | billing.create + hospital scope |
+| POST | /invoices/{id}/payments | yes | payment.create + hospital scope |
+| POST | /invoices/{id}/claims | yes | insurance.claim + hospital scope |
+| GET | /insurance-providers | yes | insurance.view |
+| POST | /insurance-providers | yes | insurance.create |
 
 OpenAPI: [backend/docs/openapi.yaml](backend/docs/openapi.yaml)
 

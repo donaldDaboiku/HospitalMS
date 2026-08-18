@@ -330,3 +330,35 @@ export type Prescription = {
     product?: Product | null
   }>
 }
+
+export type InvoiceItem = {
+  id: string
+  category: string
+  description: string
+  quantity: number
+  unit_price: string
+  total: string
+}
+
+export type PaymentRecord = {
+  id: string
+  amount: string
+  method: string
+  reference: string | null
+  paid_at: string
+}
+
+export type Invoice = {
+  id: string
+  invoice_number: string
+  status: string
+  subtotal: string
+  discount: string
+  tax: string
+  total: string
+  amount_paid: string
+  issued_at: string | null
+  patient?: { id: string; mrn: string; name: string } | null
+  items?: InvoiceItem[]
+  payments?: PaymentRecord[]
+}

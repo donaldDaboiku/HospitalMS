@@ -11,6 +11,7 @@ use App\Modules\Audit\Models\AuditLog;
 use App\Modules\Doctors\Models\DoctorProfile;
 use App\Modules\Laboratory\Models\LabOrder;
 use App\Modules\Patients\Models\Patient;
+use App\Modules\Billing\Models\Invoice;
 use App\Modules\Pharmacy\Models\Prescription;
 use App\Modules\Pharmacy\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -61,8 +62,14 @@ class DashboardController extends Controller
                 ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
                 ->whereIn('status', ['prescribed', 'partial'])
                 ->count(),
-            'todays_revenue' => 0,
-            'outstanding_bills' => 0,
+            'todays_revenue' => (float) \App\Modules\Billing\Models\Payment::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->whereDate('paid_at', now()->toDateString())
+                ->sum('amount'),
+            'outstanding_bills' => Invoice::query()
+                ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
+                ->whereIn('status', ['issued', 'partial'])
+                ->count(),
             'low_stock' => Product::query()
                 ->when($hospitalId, fn ($query) => $query->where('hospital_id', $hospitalId))
                 ->where('is_active', true)

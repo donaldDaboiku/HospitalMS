@@ -14,6 +14,7 @@ use App\Modules\Laboratory\Models\LabTest;
 use App\Modules\Laboratory\Policies\LaboratoryPolicy;
 use App\Modules\Patients\Models\Patient;
 use App\Modules\Patients\Policies\PatientPolicy;
+use App\Modules\Billing\Models\Invoice;
 use App\Modules\Pharmacy\Models\PrescriptionItem;
 use App\Modules\Pharmacy\Models\Product;
 use App\Modules\Radiology\Models\RadiologyOrder;
@@ -53,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         $this->bindHospitalScoped('labResult', LabResult::class);
         $this->bindHospitalScoped('radiologyOrder', RadiologyOrder::class);
         $this->bindHospitalScoped('product', Product::class);
+        $this->bindHospitalScoped('invoice', Invoice::class);
 
         Route::bind('prescriptionItem', function (string $value) {
             $query = PrescriptionItem::query()->whereKey($value)->whereHas('prescription', function ($prescriptions) {
